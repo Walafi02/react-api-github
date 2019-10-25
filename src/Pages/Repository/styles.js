@@ -106,3 +106,36 @@ export const IssuesList = styled.ul`
     }
   }
 `;
+
+export const Footer = styled.footer`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  button {
+    margin: 15px;
+    border: none;
+    font-size: 25px;
+    background: transparent;
+    color: #7159c1;
+    border-radius: 3px;
+
+    &:hover {
+      background: #eee;
+    }
+
+    &[disabled] {
+      cursor: not-allowed;
+      opacity: 0.6;
+    }
+
+    svg {
+      margin: auto;
+    }
+  }
+
+  span {
+    /* display: none; */
+    font-size: 22px;
+  }
+`;

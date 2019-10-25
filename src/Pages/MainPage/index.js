@@ -82,7 +82,6 @@ export default class MainPage extends Component {
           <FaGithubAlt />
           Ropositorios
         </h1>
-
         <Form onSubmit={this.handleSubmit} errorSearch={errorSearch ? 1 : 0}>
           <input
             type="text"
