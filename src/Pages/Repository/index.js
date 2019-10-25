@@ -43,12 +43,26 @@ export default class Repository extends Component {
     });
   }
 
+  handleSelectIssue = async e => {
+    const { repository } = this.state;
+
+    const issues = await api.get(`/repos/${repository.full_name}/issues`, {
+      params: {
+        state: `${e.target.value}`,
+        per_page: 5,
+      },
+    });
+
+    this.setState({
+      issues: issues.data,
+    });
+  };
+
   render() {
     const { repository, issues, loading } = this.state;
 
-    if (loading) {
-      return <Loading>Carregando...</Loading>;
-    }
+    if (loading) return <Loading>Carregando...</Loading>;
+
     return (
       <Container>
         <Owner>
@@ -59,6 +73,14 @@ export default class Repository extends Component {
         </Owner>
 
         <IssuesList>
+          <div>
+            Search Issue:
+            <select onChange={this.handleSelectIssue}>
+              <option value="all">all</option>
+              <option value="open">open</option>
+              <option value="closed">closed</option>
+            </select>
+          </div>
           {issues.map(issue => (
             <li key={String(issue.id)}>
               <img src={issue.user.avatar_url} alt={issue.user.login} />

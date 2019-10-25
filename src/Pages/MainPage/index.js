@@ -11,9 +11,9 @@ import { Form, SubmitButton, List } from './styles';
 export default class MainPage extends Component {
   state = {
     newRepo: 'facebook/react',
-    // repositorys: [],
     repositories: [],
     loading: false,
+    errorSearch: false,
   };
 
   componentDidMount() {
@@ -40,21 +40,42 @@ export default class MainPage extends Component {
     const { newRepo, repositories } = this.state;
 
     this.setState({ loading: true });
-    const response = await api.get(`/repos/${newRepo}`);
 
-    const data = {
-      name: response.data.full_name,
-    };
+    try {
+      if (newRepo === '') throw new Error('Repositório Não Informado');
 
-    this.setState({
-      repositories: [...repositories, data],
-      newRepo: '',
-      loading: false,
-    });
+      const verification = repositories.find(repository => {
+        return repository.name === newRepo;
+      });
+
+      if (verification) throw new Error('Repositório Duplicado');
+
+      const response = await api.get(`/repos/${newRepo}`);
+
+      const data = {
+        name: response.data.full_name,
+      };
+
+      this.setState({
+        repositories: [...repositories, data],
+        newRepo: '',
+        errorSearch: false,
+      });
+    } catch (error) {
+      console.error(error);
+
+      this.setState({
+        errorSearch: true,
+      });
+    } finally {
+      this.setState({
+        loading: false,
+      });
+    }
   };
 
   render() {
-    const { newRepo, repositories, loading } = this.state;
+    const { newRepo, repositories, loading, errorSearch } = this.state;
     return (
       <Container>
         <h1>
@@ -62,7 +83,7 @@ export default class MainPage extends Component {
           Ropositorios
         </h1>
 
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} errorSearch={errorSearch ? 1 : 0}>
           <input
             type="text"
             placeholder="Adicionar repositorio"
