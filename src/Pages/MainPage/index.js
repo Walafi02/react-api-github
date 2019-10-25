@@ -11,21 +11,22 @@ import { Form, SubmitButton, List } from './styles';
 export default class MainPage extends Component {
   state = {
     newRepo: 'facebook/react',
-    repositorys: [],
+    // repositorys: [],
+    repositories: [],
     loading: false,
   };
 
   componentDidMount() {
     const repositories = localStorage.getItem('repositories');
     if (repositories) {
-      this.setState({ repositorys: JSON.parse(repositories) });
+      this.setState({ repositories: JSON.parse(repositories) });
     }
   }
 
   componentDidUpdate(_, prevState) {
-    const { repositorys } = this.state;
-    if (prevState.repositorys !== repositorys) {
-      localStorage.setItem('repositories', JSON.stringify(repositorys));
+    const { repositories } = this.state;
+    if (prevState.repositories !== repositories) {
+      localStorage.setItem('repositories', JSON.stringify(repositories));
     }
   }
 
@@ -36,7 +37,7 @@ export default class MainPage extends Component {
   handleSubmit = async e => {
     e.preventDefault();
 
-    const { newRepo, repositorys } = this.state;
+    const { newRepo, repositories } = this.state;
 
     this.setState({ loading: true });
     const response = await api.get(`/repos/${newRepo}`);
@@ -46,14 +47,14 @@ export default class MainPage extends Component {
     };
 
     this.setState({
-      repositorys: [...repositorys, data],
+      repositories: [...repositories, data],
       newRepo: '',
       loading: false,
     });
   };
 
   render() {
-    const { newRepo, repositorys, loading } = this.state;
+    const { newRepo, repositories, loading } = this.state;
     return (
       <Container>
         <h1>
@@ -78,7 +79,7 @@ export default class MainPage extends Component {
           </SubmitButton>
         </Form>
         <List>
-          {repositorys.map(repository => (
+          {repositories.map(repository => (
             <li key={repository.name}>
               <span>{repository.name}</span>
               <Link to={`/repository/${encodeURIComponent(repository.name)}`}>

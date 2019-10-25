@@ -1,25 +1,5 @@
 import styled, { keyframes, css } from 'styled-components';
 
-// export const Container = styled.div`
-//   max-width: 700px;
-//   background: #fff;
-//   border-radius: 5px;
-//   box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
-//   padding: 30px;
-//   margin: 80px auto;
-
-//   h1 {
-//     font-size: 20px;
-//     display: flex;
-//     flex-direction: row;
-//     align-items: center;
-//   }
-
-//   svg {
-//     margin-right: 10px;
-//   }
-// `;
-
 export const Form = styled.form`
   margin-top: 30px;
   display: flex;
@@ -57,6 +37,10 @@ export const SubmitButton = styled.button.attrs(props => ({
   display: flex;
   justify-content: center;
   align-items: center;
+
+  svg {
+    margin: auto;
+  }
 
   &[disabled] {
     cursor: not-allowed;
