@@ -10,7 +10,7 @@ import { Form, SubmitButton, List } from './styles';
 
 export default class MainPage extends Component {
   state = {
-    newRepo: 'facebook/react',
+    newRepo: '',
     repositories: [],
     loading: false,
     errorSearch: false,

@@ -5,7 +5,7 @@ import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 
 import api from '../../services/api';
 import Container from '../../components/Container';
-import { Loading, Owner, IssuesList, Footer } from './styles';
+import { Loading, Owner, IssuesList, Footer, Search } from './styles';
 
 export default class Repository extends Component {
   static propTypes = {
@@ -23,20 +23,22 @@ export default class Repository extends Component {
     perPage: 5,
     page: 1,
     loadingIssue: false,
+    state: 'all',
   };
 
   async componentDidMount() {
     const { match } = this.props;
     const repoName = decodeURIComponent(match.params.repository);
 
-    const { perPage } = this.state;
+    const { perPage, page, state } = this.state;
 
     const [repository, issues] = await Promise.all([
       api.get(`/repos/${repoName}`),
       api.get(`/repos/${repoName}/issues`, {
         params: {
-          state: 'open',
           per_page: perPage,
+          page,
+          state,
         },
       }),
     ]);
@@ -49,39 +51,57 @@ export default class Repository extends Component {
   }
 
   handleSelectIssue = async e => {
-    const { repository } = this.state;
-
-    const issues = await api.get(`/repos/${repository.full_name}/issues`, {
-      params: {
-        state: `${e.target.value}`,
-        per_page: 5,
-      },
-    });
+    const { repository, perPage } = this.state;
+    const state = e.target.value;
 
     this.setState({
-      issues: issues.data,
-    });
-  };
-
-  handleButtonPaginate = async num => {
-    const { perPage, page, repository } = this.state;
-    this.setState({
-      page: page + num,
       loadingIssue: true,
     });
 
     const issues = await api.get(`/repos/${repository.full_name}/issues`, {
       params: {
-        state: 'open',
+        state,
         per_page: perPage,
-        page,
+        page: 1,
       },
     });
 
     this.setState({
+      state,
       issues: issues.data,
+      page: 1,
       loadingIssue: false,
     });
+  };
+
+  handleButtonPaginate = async num => {
+    const { perPage, page, repository, state } = this.state;
+
+    const numPage = page + num;
+    this.setState({
+      page: numPage,
+      loadingIssue: true,
+    });
+
+    try {
+      const issues = await api.get(`/repos/${repository.full_name}/issues`, {
+        params: {
+          per_page: perPage,
+          page: numPage,
+          state,
+        },
+      });
+
+      this.setState({
+        issues: issues.data,
+      });
+    } catch (error) {
+      console.error(error);
+    } finally {
+      this.setState({
+        loadingIssue: false,
+      });
+    }
   };
 
   render() {
@@ -92,6 +112,7 @@ export default class Repository extends Component {
       perPage,
       page,
       loadingIssue,
+      state,
     } = this.state;
 
     if (loading) return <Loading>Carregando...</Loading>;
@@ -106,14 +127,18 @@ export default class Repository extends Component {
         </Owner>
 
         <IssuesList>
-          <div>
-            Search Issue:
-            <select onChange={this.handleSelectIssue}>
-              <option value="all">all</option>
-              <option value="open">open</option>
-              <option value="closed">closed</option>
+          <Search>
+            <span>Tipo de Issue:</span>
+            <select
+              onChange={this.handleSelectIssue}
+              value={state}
+              disabled={loadingIssue}
+            >
+              <option value="open">Abertas</option>
+              <option value="closed">Fechadas</option>
+              <option value="all">Todas</option>
             </select>
-          </div>
+          </Search>
           {issues.map(issue => (
             <li key={String(issue.id)}>
               <img src={issue.user.avatar_url} alt={issue.user.login} />
